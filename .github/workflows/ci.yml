@@ -57,24 +57,28 @@ jobs:
       shell: cmd
       run: >-
         pyinstaller --name "Sky Folder Selector" --windowed
-        --hidden-import pkgutil
-        --hidden-import win32ctypes
-        --hidden-import win32ctypes.core
-        --hidden-import win32ctypes.pywin32
-        --hidden-import win32api
-        --hidden-import win32con
-        --hidden-import PyQt6
         --hidden-import PyQt6.sip
         --hidden-import PyQt6.QtCore
         --hidden-import PyQt6.QtGui
         --hidden-import PyQt6.QtWidgets
-        --hidden-import PyQt6.QtPrintSupport
-        --collect-all PyQt6
+        --exclude-module matplotlib
+        --exclude-module numpy
+        --exclude-module PIL
+        --exclude-module pandas
+        --exclude-module scipy
+        --exclude-module PyQt6.QtNetwork
+        --exclude-module PyQt6.QtQml
+        --exclude-module PyQt6.QtQuick
+        --exclude-module PyQt6.QtSql
+        --exclude-module PyQt6.QtTest
+        --exclude-module PyQt6.QtMultimedia
         --add-data "assets/icons/icon.ico;."
         --icon assets/icons/icon.ico
-        --add-binary "%PYQT6_PATH%\Qt6\plugins\platforms\*;PyQt6\Qt6\plugins\platforms"
-        --add-binary "%PYQT6_PATH%\Qt6\plugins\styles\*;PyQt6\Qt6\plugins\styles"
-        --add-binary "%PYQT6_PATH%\Qt6\bin\*;PyQt6\Qt6\bin"
+        --add-binary "%PYQT6_PATH%\Qt6\plugins\platforms\qwindows.dll;PyQt6\Qt6\plugins\platforms"
+        --add-binary "%PYQT6_PATH%\Qt6\plugins\styles\qwindowsvistastyle.dll;PyQt6\Qt6\plugins\styles"
+        --add-binary "%PYQT6_PATH%\Qt6\bin\Qt6Core.dll;PyQt6\Qt6\bin"
+        --add-binary "%PYQT6_PATH%\Qt6\bin\Qt6Gui.dll;PyQt6\Qt6\bin"
+        --add-binary "%PYQT6_PATH%\Qt6\bin\Qt6Widgets.dll;PyQt6\Qt6\bin"
         --runtime-hook "hooks/rthook.py"
         --onefile
         --clean
@@ -142,26 +146,35 @@ jobs:
         echo "Starting build process..."
         pyinstaller --name "Sky Folder Selector" \
           --windowed \
-          --onefile \
-          --noconfirm \
-          --clean \
-          --hidden-import pkgutil \
-          --hidden-import PyQt6 \
           --hidden-import PyQt6.sip \
           --hidden-import PyQt6.QtCore \
           --hidden-import PyQt6.QtGui \
           --hidden-import PyQt6.QtWidgets \
-          --hidden-import PyQt6.QtPrintSupport \
-          --collect-all PyQt6 \
+          --exclude-module matplotlib \
+          --exclude-module numpy \
+          --exclude-module PIL \
+          --exclude-module pandas \
+          --exclude-module scipy \
+          --exclude-module PyQt6.QtNetwork \
+          --exclude-module PyQt6.QtQml \
+          --exclude-module PyQt6.QtQuick \
+          --exclude-module PyQt6.QtSql \
+          --exclude-module PyQt6.QtTest \
+          --exclude-module PyQt6.QtMultimedia \
           --add-data "assets/icons/icon.icns:." \
           --add-data "entitlements.plist:." \
           --icon assets/icons/icon.icns \
           --target-arch arm64 \
           --osx-bundle-identifier "com.sky.folder.selector" \
-          --add-binary "${PYQT6_PATH}/Qt6/plugins/platforms/*:PyQt6/Qt6/plugins/platforms/" \
-          --add-binary "${PYQT6_PATH}/Qt6/plugins/styles/*:PyQt6/Qt6/plugins/styles/" \
-          --add-binary "${QT_PATH}/*:PyQt6/Qt6/lib/" \
+          --add-binary "${PYQT6_PATH}/Qt6/plugins/platforms/libqcocoa.dylib:PyQt6/Qt6/plugins/platforms/" \
+          --add-binary "${PYQT6_PATH}/Qt6/plugins/styles/libqmacstyle.dylib:PyQt6/Qt6/plugins/styles/" \
+          --add-binary "${QT_PATH}/QtCore.framework/Versions/A/QtCore:PyQt6/Qt6/lib/QtCore" \
+          --add-binary "${QT_PATH}/QtGui.framework/Versions/A/QtGui:PyQt6/Qt6/lib/QtGui" \
+          --add-binary "${QT_PATH}/QtWidgets.framework/Versions/A/QtWidgets:PyQt6/Qt6/lib/QtWidgets" \
           --runtime-hook "hooks/rthook.py" \
+          --onefile \
+          --clean \
+          --noconfirm \
           sky_folder_selector.py
         
         echo "Creating app bundle structure..."
