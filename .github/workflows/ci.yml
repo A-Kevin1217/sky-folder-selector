@@ -25,11 +25,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pywin32-ctypes
         
     - name: Build Windows executable
       run: |
         pyinstaller --name "Sky Folder Selector" --windowed \
           --hidden-import pkgutil \
+          --hidden-import win32ctypes \
+          --hidden-import win32ctypes.core \
+          --hidden-import win32ctypes.pywin32 \
           --hidden-import PyQt6 \
           --hidden-import PyQt6.sip \
           --hidden-import PyQt6.QtCore \
@@ -38,6 +42,7 @@ jobs:
           --collect-all PyQt6 \
           --add-data "assets/icons/icon.ico;." \
           --icon assets/icons/icon.ico \
+          --add-binary "$(python -c 'import os, PyQt6; print(os.path.dirname(PyQt6.__file__))')/Qt6/bin/*;PyQt6/Qt6/bin/" \
           sky_folder_selector.py
         echo "Build completed"
         
@@ -148,14 +153,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-build
+        path: dist/windows
+        
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: macos-build
+        path: dist/macos
+        
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v1.0.0
-        name: Sky Folder Selector v1.0.0
+        release_name: Sky Folder Selector v1.0.0
         body: |
           # Sky Folder Selector v1.0.0
           
@@ -184,25 +201,13 @@ jobs:
         draft: false
         prerelease: false
         
-    - name: Download Windows artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: windows-build
-        path: dist
-        
-    - name: Download macOS artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: macos-build
-        path: dist
-        
-    - name: Upload Release Assets
+    - name: Upload Windows Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/Sky Folder Selector/Sky Folder Selector.exe
+        asset_path: ./dist/windows/Sky Folder Selector.exe
         asset_name: Sky Folder Selector.exe
         asset_content_type: application/x-msdownload
         
@@ -212,6 +217,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/Sky Folder Selector.dmg
+        asset_path: ./dist/macos/Sky Folder Selector.dmg
         asset_name: Sky Folder Selector.dmg
         asset_content_type: application/x-apple-diskimage 
