@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        python-version: [3.10]
+        python-version: ['3.10.11']
 
     steps:
     - uses: actions/checkout@v4
@@ -22,10 +22,12 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        check-latest: true
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install -r requirements.txt
         pip install pyinstaller==6.3.0
         pip install pywin32-ctypes==0.2.2
     
