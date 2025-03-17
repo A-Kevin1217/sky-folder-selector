@@ -126,11 +126,8 @@ class SkyFolderSelector:
         # 确保设置目录存在
         os.makedirs(os.path.dirname(self.settings_file), exist_ok=True)
         
-        # 默认路径
-        self.default_paths = {
-            'Windows': os.path.join(os.getenv('APPDATA', ''), 'ThatGameCompany', 'com.netease.sky'),
-            'Darwin': os.path.join(self.user_home, 'Library', 'Containers', 'com.tgc.sky.macos', 'Data', 'Documents')
-        }
+        # 初始化设置
+        self.settings = {}
         
         self.create_widgets()
         self.load_settings()
@@ -166,16 +163,26 @@ class SkyFolderSelector:
         try:
             if os.path.exists(self.settings_file):
                 with open(self.settings_file, 'r', encoding='utf-8') as f:
-                    settings = json.load(f)
-                    self.screenshots_path_var.set(settings.get('screenshots_path', ''))
-                    self.recordings_path_var.set(settings.get('recordings_path', ''))
+                    self.settings = json.load(f)
             else:
-                self.screenshots_path_var.set(self.default_paths.get(platform.system(), ''))
-                self.recordings_path_var.set(self.default_paths.get(platform.system(), ''))
+                # 设置默认路径
+                base_path = get_default_sky_path()
+                if base_path:
+                    self.settings = {
+                        "images_path": os.path.join(base_path, "images"),
+                        "record_path": os.path.join(base_path, "Record")
+                    }
+                    self.save_settings()
         except Exception as e:
             messagebox.showerror("错误", f"加载设置时出错：{str(e)}")
-            self.screenshots_path_var.set(self.default_paths.get(platform.system(), ''))
-            self.recordings_path_var.set(self.default_paths.get(platform.system(), ''))
+            self.settings = {}
+    
+    def save_settings(self):
+        try:
+            with open(self.settings_file, 'w', encoding='utf-8') as f:
+                json.dump(self.settings, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            messagebox.showerror("错误", f"保存设置时出错：{str(e)}")
     
     def show_settings(self):
         dialog = SettingsDialog(self.root, self.settings)
