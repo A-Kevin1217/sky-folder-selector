@@ -44,6 +44,13 @@ jobs:
     - name: Build macOS app
       if: matrix.os == 'macos-latest'
       run: |
+        echo "Python version:"
+        python --version
+        echo "Current directory:"
+        pwd
+        echo "Directory contents:"
+        ls -la
+        echo "Starting build process..."
         pyinstaller --name "Sky Folder Selector" \
                    --windowed \
                    --onefile \
