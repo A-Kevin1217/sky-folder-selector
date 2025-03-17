@@ -1,8 +1,11 @@
 import sys
 import os
 import json
+import subprocess
+import platform
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
+from pathlib import Path
 
 def get_default_sky_path():
     """获取不同平台下Sky的默认路径"""
@@ -99,69 +102,121 @@ class SettingsDialog:
 class SkyFolderSelector:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Sky·光遇 电脑版目录选择器")
-        self.root.geometry("500x400")
+        self.root.title("Sky Folder Selector")
+        self.root.geometry("500x600")
         self.root.resizable(False, False)
         
-        # 加载设置
-        self.load_settings()
+        # 设置窗口图标
+        if platform.system() == 'Windows':
+            self.root.iconbitmap("assets/icons/icon.ico")
+        elif platform.system() == 'Darwin':  # macOS
+            self.root.iconbitmap("assets/icons/icon.icns")
         
-        # 设置样式
-        style = ttk.Style()
-        style.configure("TButton", padding=10)
-        style.configure("TLabel", padding=5)
+        # 设置主题色
+        self.style = ttk.Style()
+        self.style.configure("TButton", padding=6, relief="flat", background="#2196F3")
+        self.style.configure("TLabel", padding=5)
+        self.style.configure("TFrame", background="#f0f0f0")
+        
+        # 获取用户目录
+        self.user_home = str(Path.home())
+        self.settings_file = os.path.join(self.user_home, '.sky_folder_selector', 'settings.json')
+        
+        # 确保设置目录存在
+        os.makedirs(os.path.dirname(self.settings_file), exist_ok=True)
+        
+        # 默认路径
+        self.default_paths = {
+            'Windows': os.path.join(os.getenv('APPDATA', ''), 'ThatGameCompany', 'com.netease.sky'),
+            'Darwin': os.path.join(self.user_home, 'Library', 'Containers', 'com.tgc.sky.macos', 'Data', 'Documents')
+        }
+        
+        self.create_widgets()
+        self.load_settings()
+    
+    def create_widgets(self):
+        # 创建主框架
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill="both", expand=True)
         
         # 标题
-        ttk.Label(self.root, text="Sky·光遇 电脑版目录选择器", 
-                 font=("", 16, "bold")).pack(pady=20)
+        title_label = ttk.Label(main_frame, text="Sky Folder Selector", 
+                              font=("Helvetica", 16, "bold"))
+        title_label.pack(pady=(0, 20))
         
-        # 平台信息
-        platform_text = "Windows版本" if sys.platform == 'win32' else "macOS版本" if sys.platform == 'darwin' else "其他平台"
-        ttk.Label(self.root, text=platform_text).pack()
+        # 平台选择框架
+        platform_frame = ttk.LabelFrame(main_frame, text="平台设置", padding="10")
+        platform_frame.pack(fill="x", pady=(0, 20))
         
-        # 按钮
-        ttk.Button(self.root, text="打开 光遇截图(images) 目录", 
-                  command=self.open_images).pack(fill="x", padx=30, pady=10)
-        ttk.Button(self.root, text="打开 光遇录屏(Record) 目录", 
-                  command=self.open_record).pack(fill="x", padx=30, pady=10)
-        ttk.Button(self.root, text="同时打开录屏和截图两个目录", 
-                  command=self.open_both).pack(fill="x", padx=30, pady=10)
+        # 平台选择
+        self.platform_var = tk.StringVar(value=platform.system())
+        ttk.Label(platform_frame, text="选择平台：").pack(side="left", padx=5)
+        platform_menu = ttk.OptionMenu(platform_frame, self.platform_var, 
+                                     platform.system(), "Windows", "Darwin")
+        platform_menu.pack(side="left", padx=5)
         
-        # 设置按钮
-        ttk.Button(self.root, text="设置", 
-                  command=self.show_settings).pack(pady=10)
+        # 默认路径提示
+        default_path = self.default_paths.get(platform.system(), "")
+        path_label = ttk.Label(platform_frame, text=f"默认路径：{default_path}", 
+                             font=("", 9), wraplength=400)
+        path_label.pack(side="left", padx=5)
+        
+        # 按钮框架
+        button_frame = ttk.LabelFrame(main_frame, text="操作", padding="10")
+        button_frame.pack(fill="x", pady=(0, 20))
+        
+        # 创建按钮网格
+        for i, (text, command) in enumerate([
+            ("打开截图文件夹", self.open_screenshots),
+            ("打开录屏文件夹", self.open_recordings),
+            ("设置自定义路径", self.set_custom_path),
+            ("重置为默认路径", self.reset_paths)
+        ]):
+            btn = ttk.Button(button_frame, text=text, command=command)
+            btn.grid(row=i//2, column=i%2, padx=5, pady=5, sticky="ew")
+        
+        # 设置按钮列权重
+        button_frame.grid_columnconfigure(0, weight=1)
+        button_frame.grid_columnconfigure(1, weight=1)
+        
+        # 当前路径显示
+        path_frame = ttk.LabelFrame(main_frame, text="当前路径", padding="10")
+        path_frame.pack(fill="x", pady=(0, 20))
+        
+        self.screenshots_path_var = tk.StringVar()
+        self.recordings_path_var = tk.StringVar()
+        
+        ttk.Label(path_frame, text="截图文件夹：").pack(anchor="w")
+        ttk.Label(path_frame, textvariable=self.screenshots_path_var, 
+                 wraplength=400).pack(anchor="w", pady=(0, 10))
+        
+        ttk.Label(path_frame, text="录屏文件夹：").pack(anchor="w")
+        ttk.Label(path_frame, textvariable=self.recordings_path_var, 
+                 wraplength=400).pack(anchor="w")
         
         # 底部署名
-        ttk.Label(self.root, text="Powered By 星川尘心", 
+        footer_frame = ttk.Frame(main_frame)
+        footer_frame.pack(fill="x", pady=(20, 0))
+        
+        ttk.Label(footer_frame, text="Powered By 星川尘心", 
                  font=("", 9)).pack(side="bottom", pady=(0, 5))
-        ttk.Label(self.root, text="Programmed By 小丞", 
+        ttk.Label(footer_frame, text="Programmed By 小丞", 
                  font=("", 9)).pack(side="bottom", pady=(0, 5))
     
     def load_settings(self):
-        self.settings_file = "sky_settings.json"
         try:
             if os.path.exists(self.settings_file):
                 with open(self.settings_file, 'r', encoding='utf-8') as f:
-                    self.settings = json.load(f)
+                    settings = json.load(f)
+                    self.screenshots_path_var.set(settings.get('screenshots_path', ''))
+                    self.recordings_path_var.set(settings.get('recordings_path', ''))
             else:
-                self.settings = {}
-                # 设置默认路径
-                base_path = get_default_sky_path()
-                if base_path:
-                    self.settings = {
-                        "images_path": os.path.join(base_path, "images"),
-                        "record_path": os.path.join(base_path, "Record")
-                    }
-                    self.save_settings()
-        except Exception:
-            self.settings = {}
-    
-    def save_settings(self):
-        try:
-            with open(self.settings_file, 'w', encoding='utf-8') as f:
-                json.dump(self.settings, f, ensure_ascii=False, indent=2)
+                self.screenshots_path_var.set(self.default_paths.get(platform.system(), ''))
+                self.recordings_path_var.set(self.default_paths.get(platform.system(), ''))
         except Exception as e:
-            messagebox.showerror("错误", f"保存设置时出错：{str(e)}")
+            messagebox.showerror("错误", f"加载设置时出错：{str(e)}")
+            self.screenshots_path_var.set(self.default_paths.get(platform.system(), ''))
+            self.recordings_path_var.set(self.default_paths.get(platform.system(), ''))
     
     def show_settings(self):
         dialog = SettingsDialog(self.root, self.settings)
@@ -199,15 +254,17 @@ class SkyFolderSelector:
         except Exception as e:
             messagebox.showerror("错误", f"打开目录时出错：{str(e)}")
     
-    def open_images(self):
+    def open_screenshots(self):
         self.open_folder(self.get_folder_path("images_path"))
     
-    def open_record(self):
+    def open_recordings(self):
         self.open_folder(self.get_folder_path("record_path"))
     
-    def open_both(self):
-        self.open_images()
-        self.open_record()
+    def set_custom_path(self):
+        self.show_settings()
+    
+    def reset_paths(self):
+        self.reset_to_default()
     
     def run(self):
         self.root.mainloop()

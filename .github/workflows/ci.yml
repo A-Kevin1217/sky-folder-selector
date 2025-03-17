@@ -44,7 +44,7 @@ jobs:
                    sky_folder_selector.py
         
         # 压缩 Windows 可执行文件
-        powershell Compress-Archive -Path "dist/Sky Folder Selector.exe" -DestinationPath "dist/Sky Folder Selector Windows.zip" -Force
+        powershell -Command "Compress-Archive -Path 'dist\Sky Folder Selector.exe' -DestinationPath 'dist\Sky Folder Selector Windows.zip' -Force"
     
     - name: Build macOS app
       if: matrix.os == 'macos-latest'
