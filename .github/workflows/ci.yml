@@ -116,7 +116,9 @@ jobs:
       id: pyqt6-path
       run: |
         PYQT6_PATH=$(python -c "import os, PyQt6; print(os.path.dirname(PyQt6.__file__))")
+        QT_PATH=$(python -c "from PyQt6.QtCore import QLibraryInfo; print(QLibraryInfo.path(QLibraryInfo.LibraryPath.LibrariesPath))")
         echo "PYQT6_PATH=$PYQT6_PATH" >> $GITHUB_ENV
+        echo "QT_PATH=$QT_PATH" >> $GITHUB_ENV
         
     - name: Create runtime hook
       run: |
@@ -125,10 +127,14 @@ jobs:
         import os
         import sys
         import PyQt6
+        from PyQt6.QtCore import QLibraryInfo
 
         if hasattr(sys, '_MEIPASS'):
-            os.environ['QT_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins')
-            os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins', 'platforms')
+            qt_path = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6')
+            os.environ['QT_PLUGIN_PATH'] = os.path.join(qt_path, 'plugins')
+            os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(qt_path, 'plugins', 'platforms')
+            os.environ['DYLD_FRAMEWORK_PATH'] = os.path.join(qt_path, 'lib')
+            os.environ['DYLD_LIBRARY_PATH'] = os.path.join(qt_path, 'lib')
         EOF
         
     - name: Build macOS app
@@ -154,7 +160,7 @@ jobs:
           --osx-bundle-identifier "com.sky.folder.selector" \
           --add-binary "${PYQT6_PATH}/Qt6/plugins/platforms/*:PyQt6/Qt6/plugins/platforms/" \
           --add-binary "${PYQT6_PATH}/Qt6/plugins/styles/*:PyQt6/Qt6/plugins/styles/" \
-          --add-binary "${PYQT6_PATH}/Qt6/bin/*:PyQt6/Qt6/bin/" \
+          --add-binary "${QT_PATH}/*:PyQt6/Qt6/lib/" \
           --runtime-hook "hooks/rthook.py" \
           sky_folder_selector.py
         
