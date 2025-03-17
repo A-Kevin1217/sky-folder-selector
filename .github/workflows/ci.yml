@@ -28,7 +28,7 @@ jobs:
         
     - name: Build Windows executable
       run: |
-        pyinstaller --name "Sky Folder Selector" --windowed --onefile --hidden-import pkgutil --hidden-import PyQt6 sky_folder_selector.py
+        pyinstaller --name "Sky Folder Selector" --windowed --onefile --hidden-import pkgutil --hidden-import PyQt6 --hidden-import PyQt6.sip --collect-all PyQt6 sky_folder_selector.py
         echo "Build completed"
         
     - name: List build output
@@ -59,7 +59,7 @@ jobs:
         
     - name: Build macOS app
       run: |
-        pyinstaller --name "Sky Folder Selector" --windowed --add-binary "sky_folder_selector.py:." --hidden-import pkgutil --hidden-import PyQt6 --target-architecture x86_64 --target-architecture arm64 --codesign-identity "-" --osx-entitlements-file entitlements.plist sky_folder_selector.py
+        pyinstaller --name "Sky Folder Selector" --windowed --add-binary "sky_folder_selector.py:." --hidden-import pkgutil --hidden-import PyQt6 --hidden-import PyQt6.sip --collect-all PyQt6 --target-architecture x86_64 --target-architecture arm64 --codesign-identity "-" --osx-entitlements-file entitlements.plist sky_folder_selector.py
         echo "Build completed"
         
     - name: List build output
@@ -83,6 +83,40 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v1.0.0
+        name: Sky Folder Selector v1.0.0
+        body: |
+          # Sky Folder Selector v1.0.0
+          
+          Sky Folder Selector 是一个简单易用的文件夹选择工具，基于 PyQt6 开发，支持 Windows 和 macOS 平台。
+          
+          ## 功能特点
+          - 简洁的图形界面
+          - 支持文件夹选择
+          - 跨平台支持（Windows/macOS）
+          
+          ## 更新内容
+          - 初始版本发布
+          - 支持 Windows 和 macOS 平台
+          - 优化了构建配置，确保所有依赖正确打包
+          - 添加了必要的系统权限配置
+          
+          ## 使用说明
+          1. 下载对应平台的安装包
+          2. 运行安装程序
+          3. 选择需要处理的文件夹
+          
+          ## 系统要求
+          - Windows 10 或更高版本
+          - macOS 10.15 或更高版本
+        draft: false
+        prerelease: false
+        
     - name: Download Windows artifact
       uses: actions/download-artifact@v4
       with:
@@ -95,15 +129,22 @@ jobs:
         name: macos-build
         path: dist
         
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
-        draft: false
-        prerelease: false
-        files: |
-          dist/Sky Folder Selector.exe
-          dist/Sky Folder Selector.dmg 
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/Sky Folder Selector.exe
+        asset_name: Sky Folder Selector.exe
+        asset_content_type: application/x-msdownload
+        
+    - name: Upload macOS Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/Sky Folder Selector.dmg
+        asset_name: Sky Folder Selector.dmg
+        asset_content_type: application/x-apple-diskimage 
