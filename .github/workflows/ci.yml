@@ -57,29 +57,8 @@ jobs:
       shell: cmd
       run: >-
         pyinstaller --name "Sky Folder Selector" --windowed
-        --hidden-import PyQt6.sip
-        --hidden-import PyQt6.QtCore
-        --hidden-import PyQt6.QtGui
-        --hidden-import PyQt6.QtWidgets
-        --exclude-module matplotlib
-        --exclude-module numpy
-        --exclude-module PIL
-        --exclude-module pandas
-        --exclude-module scipy
-        --exclude-module PyQt6.QtNetwork
-        --exclude-module PyQt6.QtQml
-        --exclude-module PyQt6.QtQuick
-        --exclude-module PyQt6.QtSql
-        --exclude-module PyQt6.QtTest
-        --exclude-module PyQt6.QtMultimedia
         --add-data "assets/icons/icon.ico;."
         --icon assets/icons/icon.ico
-        --add-binary "%PYQT6_PATH%\Qt6\plugins\platforms\qwindows.dll;PyQt6\Qt6\plugins\platforms"
-        --add-binary "%PYQT6_PATH%\Qt6\plugins\styles\qwindowsvistastyle.dll;PyQt6\Qt6\plugins\styles"
-        --add-binary "%PYQT6_PATH%\Qt6\bin\Qt6Core.dll;PyQt6\Qt6\bin"
-        --add-binary "%PYQT6_PATH%\Qt6\bin\Qt6Gui.dll;PyQt6\Qt6\bin"
-        --add-binary "%PYQT6_PATH%\Qt6\bin\Qt6Widgets.dll;PyQt6\Qt6\bin"
-        --runtime-hook "hooks/rthook.py"
         --onefile
         --clean
         --noconfirm
@@ -146,32 +125,11 @@ jobs:
         echo "Starting build process..."
         pyinstaller --name "Sky Folder Selector" \
           --windowed \
-          --hidden-import PyQt6.sip \
-          --hidden-import PyQt6.QtCore \
-          --hidden-import PyQt6.QtGui \
-          --hidden-import PyQt6.QtWidgets \
-          --exclude-module matplotlib \
-          --exclude-module numpy \
-          --exclude-module PIL \
-          --exclude-module pandas \
-          --exclude-module scipy \
-          --exclude-module PyQt6.QtNetwork \
-          --exclude-module PyQt6.QtQml \
-          --exclude-module PyQt6.QtQuick \
-          --exclude-module PyQt6.QtSql \
-          --exclude-module PyQt6.QtTest \
-          --exclude-module PyQt6.QtMultimedia \
           --add-data "assets/icons/icon.icns:." \
           --add-data "entitlements.plist:." \
           --icon assets/icons/icon.icns \
           --target-arch arm64 \
           --osx-bundle-identifier "com.sky.folder.selector" \
-          --add-binary "${PYQT6_PATH}/Qt6/plugins/platforms/libqcocoa.dylib:PyQt6/Qt6/plugins/platforms/" \
-          --add-binary "${PYQT6_PATH}/Qt6/plugins/styles/libqmacstyle.dylib:PyQt6/Qt6/plugins/styles/" \
-          --add-binary "${QT_PATH}/QtCore.framework/Versions/A/QtCore:PyQt6/Qt6/lib/QtCore" \
-          --add-binary "${QT_PATH}/QtGui.framework/Versions/A/QtGui:PyQt6/Qt6/lib/QtGui" \
-          --add-binary "${QT_PATH}/QtWidgets.framework/Versions/A/QtWidgets:PyQt6/Qt6/lib/QtWidgets" \
-          --runtime-hook "hooks/rthook.py" \
           --onefile \
           --clean \
           --noconfirm \
@@ -179,7 +137,7 @@ jobs:
         
         echo "Creating app bundle structure..."
         APP_DIR="dist/Sky Folder Selector.app"
-        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources,Frameworks}
+        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources}
         
         echo "Copying files to app bundle..."
         mv "dist/Sky Folder Selector" "$APP_DIR/Contents/MacOS/"
