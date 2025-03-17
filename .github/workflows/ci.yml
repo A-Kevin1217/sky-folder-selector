@@ -131,12 +131,32 @@ jobs:
             <true/>
             <key>com.apple.security.automation.apple-events</key>
             <true/>
+            <key>com.apple.security.cs.allow-jit</key>
+            <true/>
+            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+            <true/>
+            <key>com.apple.security.cs.disable-library-validation</key>
+            <true/>
         </dict>
         </plist>
         EOF
         
+        # 创建自签名证书
+        security create-keychain -p github_actions build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p github_actions build.keychain
+        security set-keychain-settings -t 3600 -l ~/Library/Keychains/build.keychain
+        
+        # 创建证书
+        CERT_NAME="Sky Folder Selector Developer"
+        security create-certificate-signing-request "/C=CN/O=Sky Folder Selector/CN=$CERT_NAME" cert.csr
+        security add-trusted-cert -d -k build.keychain cert.csr
+        
         # 签名应用程序
-        codesign --force --deep --sign - --entitlements entitlements.plist --options runtime "dist/Sky Folder Selector.app"
+        codesign --force --options runtime --deep --sign "$CERT_NAME" --entitlements entitlements.plist "dist/Sky Folder Selector.app"
+        
+        # 验证签名
+        codesign --verify --deep --strict --verbose=2 "dist/Sky Folder Selector.app"
         
         # 压缩应用程序
         cd dist
