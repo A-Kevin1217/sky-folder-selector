@@ -33,13 +33,26 @@ jobs:
     - name: List build output
       run: dir dist
         
-    - name: Upload Windows artifact
-      if: success()
-      uses: actions/upload-artifact@v2
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: sky-folder-selector-windows
-        path: dist/
-        retention-days: 5
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/*.exe
+        asset_name: sky-folder-selector-windows.exe
+        asset_content_type: application/x-msdownload
 
   build-macos:
     runs-on: macos-latest
@@ -67,10 +80,23 @@ jobs:
     - name: List build output
       run: ls -la dist/
         
-    - name: Upload macOS artifact
-      if: success()
-      uses: actions/upload-artifact@v2
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: sky-folder-selector-macos
-        path: dist/
-        retention-days: 5 
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload macOS Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/*.dmg
+        asset_name: sky-folder-selector-macos.dmg
+        asset_content_type: application/x-apple-diskimage 
