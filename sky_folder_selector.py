@@ -119,38 +119,44 @@ class SkyFolderSelector:
         except Exception as e:
             print(f"无法加载图标：{str(e)}")
         
-        # 设置 Apple 风格主题
+        # 设置暗色主题
         self.style = ttk.Style()
         
         # 配置按钮样式
-        self.style.configure("Apple.TButton",
+        self.style.configure("Dark.TButton",
                            padding=10,
                            relief="flat",
-                           background="#007AFF",
-                           foreground="white",
-                           font=("SF Pro Text", 12))
+                           background="#4A4A4A",
+                           foreground="#FFFFFF",
+                           font=("SF Pro Text", 13))
         
         # 配置标签样式
-        self.style.configure("Apple.TLabel",
+        self.style.configure("Dark.TLabel",
                            padding=5,
-                           font=("SF Pro Text", 10))
+                           font=("SF Pro Text", 13),
+                           foreground="#FFFFFF")
         
         # 配置标题样式
-        self.style.configure("AppleTitle.TLabel",
+        self.style.configure("DarkTitle.TLabel",
                            font=("SF Pro Display", 24, "bold"),
-                           foreground="#1D1D1F")
+                           foreground="#FFFFFF")
+        
+        # 配置副标题样式
+        self.style.configure("DarkSubTitle.TLabel",
+                           font=("SF Pro Text", 13),
+                           foreground="#AAAAAA")
         
         # 配置信息标签样式
-        self.style.configure("AppleInfo.TLabel",
-                           font=("SF Pro Text", 9),
-                           foreground="#86868B")
+        self.style.configure("DarkInfo.TLabel",
+                           font=("SF Pro Text", 10),
+                           foreground="#888888")
         
         # 配置框架样式
-        self.style.configure("Apple.TFrame",
-                           background="#F5F5F7")
+        self.style.configure("Dark.TFrame",
+                           background="#2A2A2A")
         
         # 设置窗口背景色
-        self.root.configure(bg="#F5F5F7")
+        self.root.configure(bg="#2A2A2A")
         
         # 获取用户目录
         self.user_home = str(Path.home())
@@ -167,42 +173,42 @@ class SkyFolderSelector:
     
     def create_widgets(self):
         # 主框架
-        main_frame = ttk.Frame(self.root, style="Apple.TFrame")
-        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        main_frame = ttk.Frame(self.root, style="Dark.TFrame")
+        main_frame.pack(fill="both", expand=True)
         
         # 标题
         ttk.Label(main_frame, text="Sky·光遇", 
-                 style="AppleTitle.TLabel").pack(pady=(20, 5))
+                 style="DarkTitle.TLabel").pack(pady=(30, 5))
         ttk.Label(main_frame, text="电脑版目录选择器", 
-                 style="AppleInfo.TLabel").pack(pady=(0, 30))
+                 style="DarkSubTitle.TLabel").pack(pady=(0, 40))
         
         # 创建按钮框架
-        button_frame = ttk.Frame(main_frame, style="Apple.TFrame")
-        button_frame.pack(fill="x", pady=10)
+        button_frame = ttk.Frame(main_frame, style="Dark.TFrame")
+        button_frame.pack(fill="x", padx=50)
         
         # 前两个按钮并排显示
         ttk.Button(button_frame, text="打开截图目录", 
                   command=self.open_images,
-                  style="Apple.TButton").pack(side="left", expand=True, padx=5)
+                  style="Dark.TButton").pack(side="left", expand=True, padx=5)
         ttk.Button(button_frame, text="打开录屏目录", 
                   command=self.open_record,
-                  style="Apple.TButton").pack(side="left", expand=True, padx=5)
+                  style="Dark.TButton").pack(side="left", expand=True, padx=5)
         
         # 第三个按钮
         ttk.Button(main_frame, text="同时打开两个目录", 
                   command=self.open_both,
-                  style="Apple.TButton").pack(fill="x", pady=10)
+                  style="Dark.TButton").pack(fill="x", padx=50, pady=20)
         
         # 设置按钮
         ttk.Button(main_frame, text="设置", 
                   command=self.show_settings,
-                  style="Apple.TButton").pack(pady=10)
+                  style="Dark.TButton").pack(pady=10)
         
         # 底部署名
         ttk.Label(main_frame, text="Powered By 星川尘心", 
-                 style="AppleInfo.TLabel").pack(side="bottom", pady=(0, 5))
+                 style="DarkInfo.TLabel").pack(side="bottom", pady=(0, 5))
         ttk.Label(main_frame, text="Programmed By 小丞", 
-                 style="AppleInfo.TLabel").pack(side="bottom", pady=(0, 5))
+                 style="DarkInfo.TLabel").pack(side="bottom", pady=(0, 5))
     
     def load_settings(self):
         try:
