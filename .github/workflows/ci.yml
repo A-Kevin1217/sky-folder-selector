@@ -40,24 +40,22 @@ jobs:
         
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ github.run_number }}-windows
-        release_name: Release v${{ github.run_number }} (Windows)
+        name: Release v${{ github.run_number }} (Windows)
         draft: false
         prerelease: false
         
     - name: Upload Windows Release Asset
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/Sky Folder Selector Setup.exe
-        asset_name: sky-folder-selector-windows.exe
-        asset_content_type: application/x-msdownload
+        files: dist/Sky Folder Selector Setup.exe
+        tag_name: v${{ github.run_number }}-windows
 
   build-macos:
     runs-on: macos-latest
@@ -88,21 +86,19 @@ jobs:
         
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ github.run_number }}-macos
-        release_name: Release v${{ github.run_number }} (macOS)
+        name: Release v${{ github.run_number }} (macOS)
         draft: false
         prerelease: false
         
     - name: Upload macOS Release Asset
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/Sky Folder Selector.dmg
-        asset_name: sky-folder-selector-macos.dmg
-        asset_content_type: application/x-apple-diskimage 
+        files: dist/Sky Folder Selector.dmg
+        tag_name: v${{ github.run_number }}-macos 
