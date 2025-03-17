@@ -144,15 +144,17 @@ class SkyFolderSelector:
         ttk.Label(self.root, text="Sky·光遇 电脑版目录选择器", 
                  style="Title.TLabel").pack(pady=20)
         
-        # 平台信息
-        platform_text = "Windows版本" if platform.system() == 'win32' else "macOS版本" if platform.system() == 'darwin' else "其他平台"
-        ttk.Label(self.root, text=platform_text, style="Info.TLabel").pack(pady=5)
+        # 创建按钮框架
+        button_frame = ttk.Frame(self.root)
+        button_frame.pack(fill="x", padx=30, pady=10)
         
-        # 按钮
-        ttk.Button(self.root, text="打开 光遇截图(images) 目录", 
-                  command=self.open_images).pack(fill="x", padx=30, pady=10)
-        ttk.Button(self.root, text="打开 光遇录屏(Record) 目录", 
-                  command=self.open_record).pack(fill="x", padx=30, pady=10)
+        # 前两个按钮并排显示
+        ttk.Button(button_frame, text="打开 光遇截图(images) 目录", 
+                  command=self.open_images).pack(side="left", expand=True, padx=5)
+        ttk.Button(button_frame, text="打开 光遇录屏(Record) 目录", 
+                  command=self.open_record).pack(side="left", expand=True, padx=5)
+        
+        # 第三个按钮
         ttk.Button(self.root, text="同时打开录屏和截图两个目录", 
                   command=self.open_both).pack(fill="x", padx=30, pady=10)
         
