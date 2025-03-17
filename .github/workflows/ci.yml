@@ -144,21 +144,24 @@ jobs:
           --hidden-import PyQt6.QtPrintSupport \
           --collect-all PyQt6 \
           --add-data "assets/icons/icon.icns:." \
+          --add-data "entitlements.plist:." \
           --icon assets/icons/icon.icns \
           --target-arch arm64 \
           --osx-bundle-identifier "com.sky.folder.selector" \
           --add-binary "${PYQT6_PATH}/Qt6/plugins/platforms/*:PyQt6/Qt6/plugins/platforms/" \
           --add-binary "${PYQT6_PATH}/Qt6/plugins/styles/*:PyQt6/Qt6/plugins/styles/" \
+          --add-binary "${PYQT6_PATH}/Qt6/bin/*:PyQt6/Qt6/bin/" \
           --runtime-hook "hooks/rthook.py" \
           sky_folder_selector.py
         
         echo "Creating app bundle structure..."
         APP_DIR="dist/Sky Folder Selector.app"
-        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources}
+        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources,Frameworks}
         
         echo "Copying files to app bundle..."
         mv "dist/Sky Folder Selector" "$APP_DIR/Contents/MacOS/"
         cp "assets/icons/icon.icns" "$APP_DIR/Contents/Resources/"
+        cp "entitlements.plist" "$APP_DIR/Contents/Resources/"
         
         echo "Creating Info.plist..."
         cat > "$APP_DIR/Contents/Info.plist" << EOF
@@ -190,14 +193,28 @@ jobs:
             <string>public.app-category.utilities</string>
             <key>NSPrincipalClass</key>
             <string>NSApplication</string>
+            <key>NSAppleEventsUsageDescription</key>
+            <string>需要访问文件夹权限以打开截图和录屏目录。</string>
+            <key>NSDesktopFolderUsageDescription</key>
+            <string>需要访问桌面文件夹权限。</string>
+            <key>NSDocumentsFolderUsageDescription</key>
+            <string>需要访问文档文件夹权限。</string>
+            <key>NSDownloadsFolderUsageDescription</key>
+            <string>需要访问下载文件夹权限。</string>
         </dict>
         </plist>
         EOF
+
+        echo "Signing the application..."
+        codesign --force --deep --sign - --entitlements entitlements.plist --options runtime "$APP_DIR"
         
         echo "Creating DMG..."
         mkdir -p dist/dmg
         mv "$APP_DIR" dist/dmg/
         hdiutil create -volname "Sky Folder Selector" -srcfolder dist/dmg -ov -format UDZO "dist/Sky Folder Selector.dmg"
+        
+        echo "Signing DMG..."
+        codesign --force --sign - "dist/Sky Folder Selector.dmg"
         
     - name: Upload macOS artifact
       uses: actions/upload-artifact@v4
