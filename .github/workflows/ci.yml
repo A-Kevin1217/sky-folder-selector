@@ -28,7 +28,7 @@ jobs:
         
     - name: Build Windows executable
       run: |
-        pyinstaller --name "Sky Folder Selector" --windowed --onefile --hidden-import pkgutil --hidden-import PyQt6 --hidden-import PyQt6.sip --collect-all PyQt6 sky_folder_selector.py
+        pyinstaller --name "Sky Folder Selector" --windowed --onefile --hidden-import pkgutil --hidden-import PyQt6 --hidden-import PyQt6.sip --collect-all PyQt6 --icon assets/icons/icon.ico sky_folder_selector.py
         echo "Build completed"
         
     - name: List build output
@@ -69,6 +69,7 @@ jobs:
           --collect-all PyQt6 \
           --clean \
           --noconfirm \
+          --icon assets/icons/icon.icns \
           sky_folder_selector.py
         echo "Build completed"
         
@@ -130,6 +131,7 @@ jobs:
           - 支持 Windows 和 macOS 平台
           - 优化了构建配置，确保所有依赖正确打包
           - 添加了必要的系统权限配置
+          - 添加了应用程序图标
           
           ## 使用说明
           1. 下载对应平台的安装包
