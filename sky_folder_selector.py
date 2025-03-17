@@ -25,48 +25,79 @@ class SettingsDialog:
         # 创建对话框
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("设置")
-        self.dialog.geometry("500x250")
+        self.dialog.geometry("500x300")
         self.dialog.resizable(False, False)
+        self.dialog.configure(bg="#2A2A2A")
         
         # 设置样式
         style = ttk.Style()
-        style.configure("TButton", padding=5)
-        style.configure("TLabel", padding=5)
-        style.configure("TEntry", padding=5)
+        style.configure("Settings.TButton",
+                      padding=8,
+                      relief="flat",
+                      background="#4A4A4A",
+                      foreground="#FFFFFF",
+                      font=("SF Pro Text", 12))
+        style.configure("Settings.TLabel",
+                      padding=5,
+                      font=("SF Pro Text", 12),
+                      foreground="#FFFFFF")
+        style.configure("Settings.TFrame",
+                      background="#2A2A2A")
+        style.configure("SettingsInfo.TLabel",
+                      font=("SF Pro Text", 10),
+                      foreground="#888888")
+        
+        # 主框架
+        main_frame = ttk.Frame(self.dialog, style="Settings.TFrame")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
         # 显示当前平台
         platform_text = "当前平台：Windows" if sys.platform == 'win32' else "当前平台：macOS" if sys.platform == 'darwin' else "当前平台：其他"
-        ttk.Label(self.dialog, text=platform_text, font=("", 10, "bold")).pack(pady=5)
+        ttk.Label(main_frame, text=platform_text, style="Settings.TLabel").pack(pady=5)
         
         # 默认路径提示
         default_path = get_default_sky_path()
-        ttk.Label(self.dialog, text=f"默认路径：{default_path}", font=("", 9)).pack(pady=5)
+        ttk.Label(main_frame, text=f"默认路径：{default_path}", style="SettingsInfo.TLabel").pack(pady=5)
         
         # 创建输入框框架
-        frame = ttk.Frame(self.dialog)
-        frame.pack(fill="x", padx=20, pady=10)
+        frame = ttk.Frame(main_frame, style="Settings.TFrame")
+        frame.pack(fill="x", pady=20)
         
         # 图片目录设置
-        ttk.Label(frame, text="截图目录：").grid(row=0, column=0, sticky="w")
-        self.images_path = ttk.Entry(frame, width=40)
+        ttk.Label(frame, text="截图目录：", style="Settings.TLabel").pack(anchor="w")
+        path_frame1 = ttk.Frame(frame, style="Settings.TFrame")
+        path_frame1.pack(fill="x", pady=(0, 10))
+        self.images_path = ttk.Entry(path_frame1, width=40, font=("SF Pro Text", 11))
         self.images_path.insert(0, self.settings.get("images_path", ""))
-        self.images_path.grid(row=0, column=1, padx=5)
-        ttk.Button(frame, text="浏览", command=lambda: self.browse_folder(self.images_path)).grid(row=0, column=2)
+        self.images_path.pack(side="left", padx=(0, 5), fill="x", expand=True)
+        ttk.Button(path_frame1, text="选择目录", 
+                  command=lambda: self.browse_folder(self.images_path),
+                  style="Settings.TButton").pack(side="right")
         
         # 录屏目录设置
-        ttk.Label(frame, text="录屏目录：").grid(row=1, column=0, sticky="w", pady=10)
-        self.record_path = ttk.Entry(frame, width=40)
+        ttk.Label(frame, text="录屏目录：", style="Settings.TLabel").pack(anchor="w")
+        path_frame2 = ttk.Frame(frame, style="Settings.TFrame")
+        path_frame2.pack(fill="x", pady=(0, 10))
+        self.record_path = ttk.Entry(path_frame2, width=40, font=("SF Pro Text", 11))
         self.record_path.insert(0, self.settings.get("record_path", ""))
-        self.record_path.grid(row=1, column=1, padx=5, pady=10)
-        ttk.Button(frame, text="浏览", command=lambda: self.browse_folder(self.record_path)).grid(row=1, column=2, pady=10)
+        self.record_path.pack(side="left", padx=(0, 5), fill="x", expand=True)
+        ttk.Button(path_frame2, text="选择目录", 
+                  command=lambda: self.browse_folder(self.record_path),
+                  style="Settings.TButton").pack(side="right")
         
         # 按钮框架
-        button_frame = ttk.Frame(self.dialog)
-        button_frame.pack(fill="x", padx=20, pady=10)
+        button_frame = ttk.Frame(main_frame, style="Settings.TFrame")
+        button_frame.pack(fill="x", pady=(20, 0))
         
-        ttk.Button(button_frame, text="恢复默认", command=self.reset_to_default).pack(side="left", padx=5)
-        ttk.Button(button_frame, text="保存", command=self.save).pack(side="right", padx=5)
-        ttk.Button(button_frame, text="取消", command=self.cancel).pack(side="right", padx=5)
+        ttk.Button(button_frame, text="恢复默认", 
+                  command=self.reset_to_default,
+                  style="Settings.TButton").pack(side="left")
+        ttk.Button(button_frame, text="保存", 
+                  command=self.save,
+                  style="Settings.TButton").pack(side="right", padx=(5, 0))
+        ttk.Button(button_frame, text="取消", 
+                  command=self.cancel,
+                  style="Settings.TButton").pack(side="right", padx=5)
         
         # 设置模态
         self.dialog.transient(parent)
