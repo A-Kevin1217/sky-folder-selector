@@ -28,7 +28,7 @@ jobs:
         
     - name: Build Windows executable
       run: |
-        pyinstaller --name "Sky Folder Selector" --windowed --onefile sky_folder_selector.py
+        pyinstaller --name "Sky Folder Selector" --windowed --onefile --hidden-import pkgutil --hidden-import PyQt6 sky_folder_selector.py
         echo "Build completed"
         
     - name: List build output
@@ -59,17 +59,21 @@ jobs:
         
     - name: Build macOS app
       run: |
-        pyinstaller --name "Sky Folder Selector" --windowed --onefile sky_folder_selector.py
+        pyinstaller --name "Sky Folder Selector" --windowed --add-binary "sky_folder_selector.py:." --hidden-import pkgutil --hidden-import PyQt6 --target-architecture x86_64 --target-architecture arm64 --codesign-identity "-" --osx-entitlements-file entitlements.plist sky_folder_selector.py
         echo "Build completed"
         
     - name: List build output
       run: ls -la dist/
         
+    - name: Create DMG
+      run: |
+        hdiutil create -volname "Sky Folder Selector" -srcfolder "dist/Sky Folder Selector.app" -ov -format UDZO "dist/Sky Folder Selector.dmg"
+        
     - name: Upload macOS artifact
       uses: actions/upload-artifact@v4
       with:
         name: macos-build
-        path: dist/Sky Folder Selector
+        path: dist/Sky Folder Selector.dmg
         retention-days: 5
         compression-level: 9
 
@@ -102,4 +106,4 @@ jobs:
         prerelease: false
         files: |
           dist/Sky Folder Selector.exe
-          dist/Sky Folder Selector 
+          dist/Sky Folder Selector.dmg 
