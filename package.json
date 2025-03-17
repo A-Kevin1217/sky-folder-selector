@@ -22,11 +22,13 @@
     "mac": {
       "target": ["dmg", "zip"],
       "category": "public.app-category.utilities",
-      "artifactName": "${productName}-${version}-mac.${ext}"
+      "artifactName": "${productName}-${version}-mac.${ext}",
+      "icon": "build/icon.icns"
     },
     "win": {
       "target": ["nsis", "portable"],
-      "artifactName": "${productName}-${version}-win.${ext}"
+      "artifactName": "${productName}-${version}-win.${ext}",
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -46,6 +48,9 @@
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
       "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
-    ]
+    ],
+    "directories": {
+      "output": "dist"
+    }
   }
 } 

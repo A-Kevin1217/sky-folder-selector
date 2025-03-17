@@ -7,17 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-        include:
-          - os: windows-latest
-            artifact_name: sky-folder-selector-windows
-          - os: macos-latest
-            artifact_name: sky-folder-selector-macos
-    runs-on: ${{ matrix.os }}
-
+  build-windows:
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
     
@@ -40,21 +31,46 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: List build output
-      run: |
-        echo "Listing dist directory contents:"
-        ls -la dist/
+      run: dir dist
         
-    - name: Check if dist directory exists
-      run: |
-        if [ ! -d "dist" ]; then
-          echo "dist directory does not exist!"
-          exit 1
-        fi
-        
-    - name: Upload artifact
+    - name: Upload Windows artifact
       if: success()
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.artifact_name }}
+        name: sky-folder-selector-windows
+        path: dist/
+        retention-days: 5
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        npm install --save-dev electron@latest electron-builder@latest
+        
+    - name: Build
+      run: |
+        npm run build
+        echo "Build completed"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: List build output
+      run: ls -la dist/
+        
+    - name: Upload macOS artifact
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: sky-folder-selector-macos
         path: dist/
         retention-days: 5 
