@@ -41,4 +41,5 @@ pyinstaller --onefile --windowed --name "Sky光遇文件夹选择器" sky_folder
 
 ## 作者
 
-星川尘心 
+编写脚本：星川尘心
+转换程序：小丞
