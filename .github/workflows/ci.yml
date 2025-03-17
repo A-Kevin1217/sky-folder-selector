@@ -59,15 +59,31 @@ jobs:
         
     - name: Build macOS app
       run: |
-        pyinstaller --name "Sky Folder Selector" --windowed --add-binary "sky_folder_selector.py:." --hidden-import pkgutil --hidden-import PyQt6 --hidden-import PyQt6.sip --collect-all PyQt6 --target-architecture x86_64 --target-architecture arm64 --codesign-identity "-" --osx-entitlements-file entitlements.plist sky_folder_selector.py
+        echo "Starting build process..."
+        pyinstaller --name "Sky Folder Selector" \
+          --windowed \
+          --onefile \
+          --hidden-import pkgutil \
+          --hidden-import PyQt6 \
+          --hidden-import PyQt6.sip \
+          --collect-all PyQt6 \
+          --clean \
+          --noconfirm \
+          sky_folder_selector.py
         echo "Build completed"
         
     - name: List build output
-      run: ls -la dist/
+      run: |
+        echo "Listing build output directory:"
+        ls -la dist/
+        echo "Listing build directory:"
+        ls -la build/
         
     - name: Create DMG
       run: |
-        hdiutil create -volname "Sky Folder Selector" -srcfolder "dist/Sky Folder Selector.app" -ov -format UDZO "dist/Sky Folder Selector.dmg"
+        echo "Creating DMG..."
+        hdiutil create -volname "Sky Folder Selector" -srcfolder "dist/Sky Folder Selector" -ov -format UDZO "dist/Sky Folder Selector.dmg"
+        echo "DMG created"
         
     - name: Upload macOS artifact
       uses: actions/upload-artifact@v4

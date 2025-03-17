@@ -261,7 +261,7 @@ class SkyFolderSelector(QMainWindow):
             return
             
         if not os.path.exists(path):
-            QMessageBox.warning(self, "错误", f"目录不存在：{path}")
+            QMessageBox.warning(self, "错误", f"您指定的目录 '{path}' 不存在。如果您没有手动设置该目录，可能是程序的默认目录未能找到。请检查路径是否正确，或在设置中手动选择目录。")
             return
         
         try:
@@ -284,8 +284,21 @@ class SkyFolderSelector(QMainWindow):
         self.open_images()
         self.open_record()
 
-if __name__ == '__main__':
+def main():
+    folder_path = "your_directory_path"  # 替换为实际的目录路径
+
+    # 检查目录是否存在
+    if not os.path.exists(folder_path):
+        print(f"提示：您指定的目录 '{folder_path}' 不存在。"
+              f"如果您没有手动设置该目录，可能是程序的默认目录未能找到。"
+              f"请检查路径是否正确，或在设置中手动选择目录。")
+        sys.exit(1)
+
+    # 继续执行程序的其他部分
     app = QApplication(sys.argv)
     window = SkyFolderSelector()
     window.show()
-    sys.exit(app.exec()) 
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main() 
