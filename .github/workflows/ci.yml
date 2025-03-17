@@ -35,6 +35,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: cmd
       run: |
+        REM 构建可执行文件
         pyinstaller --name "Sky Folder Selector" ^
                    --windowed ^
                    --onefile ^
@@ -43,8 +44,13 @@ jobs:
                    --icon "assets/icons/icon.ico" ^
                    sky_folder_selector.py
         
-        # 压缩 Windows 可执行文件
-        powershell -Command "Compress-Archive -Path 'dist\Sky Folder Selector.exe' -DestinationPath 'dist\Sky Folder Selector Windows.zip' -Force"
+        REM 检查构建输出
+        dir dist
+        
+        REM 压缩 Windows 可执行文件
+        cd dist
+        powershell -Command "Compress-Archive -Path 'Sky Folder Selector.exe' -DestinationPath 'Sky Folder Selector Windows.zip' -Force"
+        cd ..
     
     - name: Build macOS app
       if: matrix.os == 'macos-latest'
