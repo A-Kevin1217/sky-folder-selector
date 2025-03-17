@@ -28,23 +28,23 @@ jobs:
         pip install pywin32-ctypes
         
     - name: Build Windows executable
-      run: |
-        pyinstaller --name "Sky Folder Selector" --windowed \
-          --hidden-import pkgutil \
-          --hidden-import win32ctypes \
-          --hidden-import win32ctypes.core \
-          --hidden-import win32ctypes.pywin32 \
-          --hidden-import PyQt6 \
-          --hidden-import PyQt6.sip \
-          --hidden-import PyQt6.QtCore \
-          --hidden-import PyQt6.QtGui \
-          --hidden-import PyQt6.QtWidgets \
-          --collect-all PyQt6 \
-          --add-data "assets/icons/icon.ico;." \
-          --icon assets/icons/icon.ico \
-          --add-binary "$(python -c 'import os, PyQt6; print(os.path.dirname(PyQt6.__file__))')/Qt6/bin/*;PyQt6/Qt6/bin/" \
-          sky_folder_selector.py
-        echo "Build completed"
+      shell: cmd
+      run: >-
+        pyinstaller --name "Sky Folder Selector" --windowed
+        --hidden-import pkgutil
+        --hidden-import win32ctypes
+        --hidden-import win32ctypes.core
+        --hidden-import win32ctypes.pywin32
+        --hidden-import PyQt6
+        --hidden-import PyQt6.sip
+        --hidden-import PyQt6.QtCore
+        --hidden-import PyQt6.QtGui
+        --hidden-import PyQt6.QtWidgets
+        --collect-all PyQt6
+        --add-data "assets/icons/icon.ico;."
+        --icon assets/icons/icon.ico
+        --add-binary "%CD%\venv\Lib\site-packages\PyQt6\Qt6\bin\*;PyQt6\Qt6\bin"
+        sky_folder_selector.py
         
     - name: List build output
       run: dir dist
@@ -77,6 +77,8 @@ jobs:
         echo "Starting build process..."
         pyinstaller --name "Sky Folder Selector" \
           --windowed \
+          --noconfirm \
+          --clean \
           --hidden-import pkgutil \
           --hidden-import PyQt6 \
           --hidden-import PyQt6.sip \
@@ -86,24 +88,19 @@ jobs:
           --collect-all PyQt6 \
           --add-data "assets/icons/icon.icns:." \
           --icon assets/icons/icon.icns \
+          --target-arch arm64 \
+          --osx-bundle-identifier "com.sky.folder.selector" \
           sky_folder_selector.py
-        echo "Build completed"
         
-    - name: List build output
-      run: |
-        echo "Listing build output directory:"
-        ls -la dist/
-        echo "Listing build directory:"
-        ls -la build/
-        
-    - name: Create app bundle
-      run: |
+        echo "Creating app bundle structure..."
         APP_DIR="dist/Sky Folder Selector.app"
-        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources}
-        cp -r "dist/Sky Folder Selector/"* "$APP_DIR/Contents/MacOS/"
+        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources,Frameworks}
+        
+        echo "Copying files to app bundle..."
+        cp -R "dist/Sky Folder Selector/"* "$APP_DIR/Contents/MacOS/"
         cp "assets/icons/icon.icns" "$APP_DIR/Contents/Resources/"
         
-        # 创建 Info.plist
+        echo "Creating Info.plist..."
         cat > "$APP_DIR/Contents/Info.plist" << EOF
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -129,15 +126,14 @@ jobs:
             <string>10.15</string>
             <key>NSHighResolutionCapable</key>
             <true/>
+            <key>LSApplicationCategoryType</key>
+            <string>public.app-category.utilities</string>
         </dict>
         </plist>
         EOF
         
-    - name: Create DMG
-      run: |
         echo "Creating DMG..."
-        hdiutil create -volname "Sky Folder Selector" -srcfolder "dist/Sky Folder Selector.app" -ov -format UDZO "dist/Sky Folder Selector.dmg"
-        echo "DMG created"
+        hdiutil create -volname "Sky Folder Selector" -srcfolder "$APP_DIR" -ov -format UDZO "dist/Sky Folder Selector.dmg"
         
     - name: Upload macOS artifact
       uses: actions/upload-artifact@v4
