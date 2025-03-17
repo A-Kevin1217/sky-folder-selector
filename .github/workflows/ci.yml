@@ -35,7 +35,7 @@ jobs:
         
     - name: Upload Windows artifact
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: sky-folder-selector-windows
         path: dist/
@@ -69,7 +69,7 @@ jobs:
         
     - name: Upload macOS artifact
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: sky-folder-selector-macos
         path: dist/
