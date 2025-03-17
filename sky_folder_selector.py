@@ -119,12 +119,38 @@ class SkyFolderSelector:
         except Exception as e:
             print(f"无法加载图标：{str(e)}")
         
-        # 设置主题色和样式
+        # 设置 Apple 风格主题
         self.style = ttk.Style()
-        self.style.configure("TButton", padding=10, relief="flat", background="#2196F3")
-        self.style.configure("TLabel", padding=5)
-        self.style.configure("Title.TLabel", font=("Helvetica", 16, "bold"))
-        self.style.configure("Info.TLabel", font=("", 9))
+        
+        # 配置按钮样式
+        self.style.configure("Apple.TButton",
+                           padding=10,
+                           relief="flat",
+                           background="#007AFF",
+                           foreground="white",
+                           font=("SF Pro Text", 12))
+        
+        # 配置标签样式
+        self.style.configure("Apple.TLabel",
+                           padding=5,
+                           font=("SF Pro Text", 10))
+        
+        # 配置标题样式
+        self.style.configure("AppleTitle.TLabel",
+                           font=("SF Pro Display", 24, "bold"),
+                           foreground="#1D1D1F")
+        
+        # 配置信息标签样式
+        self.style.configure("AppleInfo.TLabel",
+                           font=("SF Pro Text", 9),
+                           foreground="#86868B")
+        
+        # 配置框架样式
+        self.style.configure("Apple.TFrame",
+                           background="#F5F5F7")
+        
+        # 设置窗口背景色
+        self.root.configure(bg="#F5F5F7")
         
         # 获取用户目录
         self.user_home = str(Path.home())
@@ -140,33 +166,43 @@ class SkyFolderSelector:
         self.load_settings()
     
     def create_widgets(self):
+        # 主框架
+        main_frame = ttk.Frame(self.root, style="Apple.TFrame")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
         # 标题
-        ttk.Label(self.root, text="Sky·光遇 电脑版目录选择器", 
-                 style="Title.TLabel").pack(pady=20)
+        ttk.Label(main_frame, text="Sky·光遇", 
+                 style="AppleTitle.TLabel").pack(pady=(20, 5))
+        ttk.Label(main_frame, text="电脑版目录选择器", 
+                 style="AppleInfo.TLabel").pack(pady=(0, 30))
         
         # 创建按钮框架
-        button_frame = ttk.Frame(self.root)
-        button_frame.pack(fill="x", padx=30, pady=10)
+        button_frame = ttk.Frame(main_frame, style="Apple.TFrame")
+        button_frame.pack(fill="x", pady=10)
         
         # 前两个按钮并排显示
-        ttk.Button(button_frame, text="打开 光遇截图(images) 目录", 
-                  command=self.open_images).pack(side="left", expand=True, padx=5)
-        ttk.Button(button_frame, text="打开 光遇录屏(Record) 目录", 
-                  command=self.open_record).pack(side="left", expand=True, padx=5)
+        ttk.Button(button_frame, text="打开截图目录", 
+                  command=self.open_images,
+                  style="Apple.TButton").pack(side="left", expand=True, padx=5)
+        ttk.Button(button_frame, text="打开录屏目录", 
+                  command=self.open_record,
+                  style="Apple.TButton").pack(side="left", expand=True, padx=5)
         
         # 第三个按钮
-        ttk.Button(self.root, text="同时打开录屏和截图两个目录", 
-                  command=self.open_both).pack(fill="x", padx=30, pady=10)
+        ttk.Button(main_frame, text="同时打开两个目录", 
+                  command=self.open_both,
+                  style="Apple.TButton").pack(fill="x", pady=10)
         
         # 设置按钮
-        ttk.Button(self.root, text="设置", 
-                  command=self.show_settings).pack(pady=10)
+        ttk.Button(main_frame, text="设置", 
+                  command=self.show_settings,
+                  style="Apple.TButton").pack(pady=10)
         
         # 底部署名
-        ttk.Label(self.root, text="Powered By 星川尘心", 
-                 style="Info.TLabel").pack(side="bottom", pady=(0, 5))
-        ttk.Label(self.root, text="Programmed By 小丞", 
-                 style="Info.TLabel").pack(side="bottom", pady=(0, 5))
+        ttk.Label(main_frame, text="Powered By 星川尘心", 
+                 style="AppleInfo.TLabel").pack(side="bottom", pady=(0, 5))
+        ttk.Label(main_frame, text="Programmed By 小丞", 
+                 style="AppleInfo.TLabel").pack(side="bottom", pady=(0, 5))
     
     def load_settings(self):
         try:
