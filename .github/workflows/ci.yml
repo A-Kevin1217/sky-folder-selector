@@ -11,6 +11,11 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            artifact_name: sky-folder-selector-windows
+          - os: macos-latest
+            artifact_name: sky-folder-selector-macos
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -20,15 +25,24 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
         
     - name: Install dependencies
-      run: npm install
-      
+      run: |
+        npm install
+        npm install --save-dev electron@latest electron-builder@latest
+        
     - name: Build
       run: npm run build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: List build output
+      run: ls -la dist/
       
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: sky-folder-selector-${{ matrix.os }}
-        path: dist/ 
+        name: ${{ matrix.artifact_name }}
+        path: dist/
+        retention-days: 5 
