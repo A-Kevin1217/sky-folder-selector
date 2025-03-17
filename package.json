@@ -1,0 +1,13 @@
+{
+  "name": "sky-folder-selector",
+  "version": "1.0.0",
+  "description": "A folder selector component",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "echo \"No build step specified\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+} 
