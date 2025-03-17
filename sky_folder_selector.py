@@ -107,10 +107,17 @@ class SkyFolderSelector:
         self.root.resizable(False, False)
         
         # 设置窗口图标
-        if platform.system() == 'Windows':
-            self.root.iconbitmap("assets/icons/icon.ico")
-        elif platform.system() == 'Darwin':  # macOS
-            self.root.iconbitmap("assets/icons/icon.icns")
+        try:
+            if platform.system() == 'Windows':
+                icon_path = "assets/icons/icon.ico"
+                if os.path.exists(icon_path):
+                    self.root.iconbitmap(icon_path)
+            elif platform.system() == 'Darwin':  # macOS
+                icon_path = "assets/icons/icon.icns"
+                if os.path.exists(icon_path):
+                    self.root.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"无法加载图标：{str(e)}")
         
         # 设置主题色和样式
         self.style = ttk.Style()
