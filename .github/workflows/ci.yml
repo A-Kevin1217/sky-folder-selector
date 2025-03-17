@@ -99,11 +99,46 @@ jobs:
             <true/>
             <key>NSRequiresAquaSystemAppearance</key>
             <false/>
+            <key>LSApplicationCategoryType</key>
+            <string>public.app-category.utilities</string>
+            <key>NSAppleEventsUsageDescription</key>
+            <string>需要访问文件夹权限以打开截图和录屏目录。</string>
+            <key>NSDesktopFolderUsageDescription</key>
+            <string>需要访问桌面文件夹权限。</string>
+            <key>NSDocumentsFolderUsageDescription</key>
+            <string>需要访问文档文件夹权限。</string>
+            <key>NSDownloadsFolderUsageDescription</key>
+            <string>需要访问下载文件夹权限。</string>
         </dict>
         </plist>
         EOF
         
-        # 压缩 macOS 应用
+        # 创建 entitlements.plist
+        cat > "entitlements.plist" << EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>com.apple.security.app-sandbox</key>
+            <true/>
+            <key>com.apple.security.files.user-selected.read-write</key>
+            <true/>
+            <key>com.apple.security.files.downloads.read-write</key>
+            <true/>
+            <key>com.apple.security.files.desktop.read-write</key>
+            <true/>
+            <key>com.apple.security.files.documents.read-write</key>
+            <true/>
+            <key>com.apple.security.automation.apple-events</key>
+            <true/>
+        </dict>
+        </plist>
+        EOF
+        
+        # 签名应用程序
+        codesign --force --deep --sign - --entitlements entitlements.plist --options runtime "dist/Sky Folder Selector.app"
+        
+        # 压缩应用程序
         cd dist
         zip -r "Sky Folder Selector macOS.zip" "Sky Folder Selector.app"
         cd ..
