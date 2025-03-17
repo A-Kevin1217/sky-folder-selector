@@ -33,14 +33,26 @@ jobs:
         npm install --save-dev electron@latest electron-builder@latest
         
     - name: Build
-      run: npm run build
+      run: |
+        npm run build
+        echo "Build completed"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: List build output
-      run: ls -la dist/
-      
+      run: |
+        echo "Listing dist directory contents:"
+        ls -la dist/
+        
+    - name: Check if dist directory exists
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "dist directory does not exist!"
+          exit 1
+        fi
+        
     - name: Upload artifact
+      if: success()
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.artifact_name }}
