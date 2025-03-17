@@ -20,7 +20,8 @@ jobs:
         
     - name: Install dependencies
       run: |
-        npm install
+        npm install --package-lock-only
+        npm ci
         npm install --save-dev electron@latest electron-builder@latest
         
     - name: Build
@@ -67,7 +68,8 @@ jobs:
         
     - name: Install dependencies
       run: |
-        npm install
+        npm install --package-lock-only
+        npm ci
         npm install --save-dev electron@latest electron-builder@latest
         
     - name: Build
