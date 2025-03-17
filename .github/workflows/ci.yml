@@ -39,13 +39,15 @@ jobs:
     - name: Create runtime hook
       run: |
         mkdir hooks
-        echo import os > hooks/rthook.py
-        echo import sys >> hooks/rthook.py
-        echo import PyQt6 >> hooks/rthook.py
-        echo. >> hooks/rthook.py
-        echo if hasattr(sys, '_MEIPASS'): >> hooks/rthook.py
-        echo     os.environ['QT_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins') >> hooks/rthook.py
-        echo     os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins', 'platforms') >> hooks/rthook.py
+        Set-Content -Path hooks/rthook.py -Value @'
+        import os
+        import sys
+        import PyQt6
+
+        if hasattr(sys, '_MEIPASS'):
+            os.environ['QT_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins')
+            os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins', 'platforms')
+        '@
         
     - name: Build Windows executable
       shell: cmd
