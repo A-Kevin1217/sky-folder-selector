@@ -80,19 +80,15 @@ jobs:
         echo "Listing build directory:"
         ls -la build/
         
-    - name: Check available disk space
-      run: df -h
-
-    - name: Clean up temporary files
+    - name: Create app bundle
       run: |
-        echo "Cleaning up temporary files..."
-        rm -rf build/*
-        rm -rf dist/*
+        mkdir -p "dist/Sky Folder Selector.app/Contents/MacOS"
+        cp "dist/Sky Folder Selector" "dist/Sky Folder Selector.app/Contents/MacOS/"
         
     - name: Create DMG
       run: |
         echo "Creating DMG..."
-        hdiutil create -volname "Sky Folder Selector" -srcfolder "dist/Sky Folder Selector" -ov -format UDZO "dist/Sky Folder Selector.dmg"
+        hdiutil create -volname "Sky Folder Selector" -srcfolder "dist/Sky Folder Selector.app" -ov -format UDZO "dist/Sky Folder Selector.dmg"
         echo "DMG created"
         
     - name: Upload macOS artifact
