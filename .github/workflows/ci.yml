@@ -16,79 +16,86 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        node-version: '18'
-        cache: 'npm'
+        python-version: '3.10'
         
     - name: Install dependencies
       run: |
-        npm install --package-lock-only
-        npm ci
-        npm install --save-dev electron@latest electron-builder@latest
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
         
-    - name: Build
+    - name: Build Windows executable
       run: |
-        npm run build
+        pyinstaller --name "Sky Folder Selector" --windowed --onefile sky_folder_selector.py
         echo "Build completed"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: List build output
       run: dir dist
         
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v3
       with:
-        tag_name: v${{ github.run_number }}-windows
-        name: Release v${{ github.run_number }} (Windows)
-        draft: false
-        prerelease: false
-        files: |
-          dist/Sky Folder Selector Setup.exe
-          dist/Sky Folder Selector Setup.exe.blockmap
-          dist/latest.yml
+        name: windows-build
+        path: dist/Sky Folder Selector.exe
 
   build-macos:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        node-version: '18'
-        cache: 'npm'
+        python-version: '3.10'
         
     - name: Install dependencies
       run: |
-        npm install --package-lock-only
-        npm ci
-        npm install --save-dev electron@latest electron-builder@latest
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
         
-    - name: Build
+    - name: Build macOS app
       run: |
-        npm run build
+        pyinstaller --name "Sky Folder Selector" --windowed --onefile sky_folder_selector.py
         echo "Build completed"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: List build output
       run: ls -la dist/
+        
+    - name: Upload macOS artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-build
+        path: dist/Sky Folder Selector
+
+  create-release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-build
+        path: dist
+        
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: macos-build
+        path: dist
         
     - name: Create Release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ github.run_number }}-macos
-        name: Release v${{ github.run_number }} (macOS)
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
         draft: false
         prerelease: false
         files: |
-          dist/Sky Folder Selector.dmg
-          dist/Sky Folder Selector.app
-          dist/latest-mac.yml 
+          dist/Sky Folder Selector.exe
+          dist/Sky Folder Selector 
