@@ -26,6 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pywin32-ctypes
+        pip install pywin32
         
     - name: Get PyQt6 path
       id: pyqt6-path
@@ -41,19 +42,38 @@ jobs:
         --hidden-import win32ctypes
         --hidden-import win32ctypes.core
         --hidden-import win32ctypes.pywin32
+        --hidden-import win32api
+        --hidden-import win32con
         --hidden-import PyQt6
         --hidden-import PyQt6.sip
         --hidden-import PyQt6.QtCore
         --hidden-import PyQt6.QtGui
         --hidden-import PyQt6.QtWidgets
+        --hidden-import PyQt6.QtPrintSupport
         --collect-all PyQt6
         --add-data "assets/icons/icon.ico;."
         --icon assets/icons/icon.ico
+        --add-binary "%PYQT6_PATH%\Qt6\plugins\platforms\*;PyQt6\Qt6\plugins\platforms"
+        --add-binary "%PYQT6_PATH%\Qt6\plugins\styles\*;PyQt6\Qt6\plugins\styles"
         --add-binary "%PYQT6_PATH%\Qt6\bin\*;PyQt6\Qt6\bin"
-        --onedir
+        --runtime-hook "hooks/rthook.py"
+        --onefile
         --clean
         --noconfirm
         sky_folder_selector.py
+        
+    - name: Create runtime hook
+      run: |
+        mkdir hooks
+        @'
+        import os
+        import sys
+        import PyQt6
+
+        if hasattr(sys, '_MEIPASS'):
+            os.environ['QT_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins')
+            os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(sys._MEIPASS, 'PyQt6', 'Qt6', 'plugins', 'platforms')
+        '@ | Out-File -Encoding utf8 hooks/rthook.py
         
     - name: List build output
       run: dir dist
@@ -62,7 +82,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-build
-        path: dist/Sky Folder Selector
+        path: dist/Sky Folder Selector.exe
         retention-days: 5
         compression-level: 9
 
@@ -86,12 +106,18 @@ jobs:
         rm -rf build dist
         rm -f *.spec
         
+    - name: Get PyQt6 path
+      id: pyqt6-path
+      run: |
+        PYQT6_PATH=$(python -c "import os, PyQt6; print(os.path.dirname(PyQt6.__file__))")
+        echo "PYQT6_PATH=$PYQT6_PATH" >> $GITHUB_ENV
+        
     - name: Build macOS app
       run: |
         echo "Starting build process..."
         pyinstaller --name "Sky Folder Selector" \
           --windowed \
-          --onedir \
+          --onefile \
           --noconfirm \
           --clean \
           --hidden-import pkgutil \
@@ -105,14 +131,15 @@ jobs:
           --icon assets/icons/icon.icns \
           --target-arch arm64 \
           --osx-bundle-identifier "com.sky.folder.selector" \
+          --add-binary "${PYQT6_PATH}/Qt6/bin/*:PyQt6/Qt6/bin" \
           sky_folder_selector.py
         
         echo "Creating app bundle structure..."
         APP_DIR="dist/Sky Folder Selector.app"
-        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources,Frameworks}
+        mkdir -p "$APP_DIR/Contents/"{MacOS,Resources}
         
         echo "Copying files to app bundle..."
-        cp -R "dist/Sky Folder Selector/"* "$APP_DIR/Contents/MacOS/"
+        mv "dist/Sky Folder Selector" "$APP_DIR/Contents/MacOS/"
         cp "assets/icons/icon.icns" "$APP_DIR/Contents/Resources/"
         
         echo "Creating Info.plist..."
