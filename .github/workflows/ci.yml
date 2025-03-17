@@ -42,6 +42,9 @@ jobs:
                    --noconfirm ^
                    --icon "assets/icons/icon.ico" ^
                    sky_folder_selector.py
+        
+        # 压缩 Windows 可执行文件
+        powershell Compress-Archive -Path "dist/Sky Folder Selector.exe" -DestinationPath "dist/Sky Folder Selector Windows.zip" -Force
     
     - name: Build macOS app
       if: matrix.os == 'macos-latest'
@@ -99,14 +102,80 @@ jobs:
         </dict>
         </plist>
         EOF
+        
+        # 压缩 macOS 应用
+        cd dist
+        zip -r "Sky Folder Selector macOS.zip" "Sky Folder Selector.app"
+        cd ..
+    
+    - name: Upload Windows artifact
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: dist/Sky Folder Selector Windows.zip
+        retention-days: 5
+    
+    - name: Upload macOS artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-build
+        path: dist/Sky Folder Selector macOS.zip
+        retention-days: 5
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-build
+        path: dist/windows
+    
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: macos-build
+        path: dist/macos
     
     - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist/Sky Folder Selector.exe
-          dist/Sky Folder Selector.app
+          dist/windows/Sky Folder Selector Windows.zip
+          dist/macos/Sky Folder Selector macOS.zip
+        name: Sky Folder Selector ${{ github.ref_name }}
+        body: |
+          # Sky Folder Selector ${{ github.ref_name }}
+          
+          Sky Folder Selector 是一个简单易用的文件夹选择工具，支持 Windows 和 macOS 平台。
+          
+          ## 功能特点
+          - 简洁的图形界面
+          - 支持文件夹选择
+          - 跨平台支持（Windows/macOS）
+          
+          ## 更新内容
+          - 初始版本发布
+          - 支持 Windows 和 macOS 平台
+          - 优化了构建配置，确保所有依赖正确打包
+          - 添加了必要的系统权限配置
+          - 添加了应用程序图标
+          
+          ## 使用说明
+          1. 下载对应平台的安装包
+          2. 运行程序
+          3. 选择需要处理的文件夹
+          
+          ## 系统要求
+          - Windows 10 或更高版本
+          - macOS 10.13 或更高版本
         draft: false
         prerelease: false
       env:
