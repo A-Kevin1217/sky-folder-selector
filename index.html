@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件夹选择器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件夹选择器</h1>
+    <button id="selectFolder">选择文件夹</button>
+    <div id="selectedPath"></div>
+    <script>
+        const { dialog } = require('electron').remote;
+        document.getElementById('selectFolder').addEventListener('click', async () => {
+            const result = await dialog.showOpenDialog({
+                properties: ['openDirectory']
+            });
+            if (!result.canceled) {
+                document.getElementById('selectedPath').textContent = result.filePaths[0];
+            }
+        });
+    </script>
+</body>
+</html> 

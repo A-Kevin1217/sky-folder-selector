@@ -8,7 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
@@ -24,5 +27,8 @@ jobs:
     - name: Build
       run: npm run build
       
-    - name: Test
-      run: npm test 
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: sky-folder-selector-${{ matrix.os }}
+        path: dist/ 
