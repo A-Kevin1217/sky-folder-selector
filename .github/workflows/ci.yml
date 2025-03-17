@@ -27,6 +27,8 @@ jobs:
         pip install -r requirements.txt
         pip install pywin32-ctypes
         pip install pywin32
+        pip install PyQt6-Qt6==6.6.1
+        pip install PyQt6-sip==13.6.0
         
     - name: Get PyQt6 path
       id: pyqt6-path
