@@ -1,45 +1,54 @@
-# Sky光遇文件夹选择器
+# Sky Folder Selector
 
-一个简单的工具，用于快速打开 Sky光遇 游戏的截图和录屏文件夹。
+Sky Folder Selector 是一个简单易用的文件夹选择工具，基于 tkinter 开发，支持 Windows 和 macOS 平台。
 
 ## 功能特点
 
-- 支持 Windows 和 macOS 双平台
-- 快速打开截图文件夹
-- 快速打开录屏文件夹
-- 支持自定义文件夹路径
-- 简洁美观的界面
+- 简洁的图形界面
+- 支持文件夹选择
+- 跨平台支持（Windows/macOS）
 
-## 使用方法
+## 系统要求
 
-1. 下载对应平台的可执行文件
-2. 直接运行程序
-3. 点击按钮打开对应文件夹
-4. 可以通过设置按钮自定义文件夹路径
+- Python 3.10 或更高版本
+- Windows 10 或更高版本
+- macOS 10.13 或更高版本
 
-## 开发环境
-
-- Python 3.9+
-- PyQt6
-- pyinstaller
-
-## 构建方法
+## 安装依赖
 
 ```bash
-# 安装依赖
-pip install PyQt6
-pip install pyinstaller
-
-# 构建程序
-pyinstaller --onefile --windowed --name "Sky光遇文件夹选择器" sky_folder_selector.py
+pip install -r requirements.txt
 ```
 
-## 默认路径
+## 运行程序
 
-- Windows: `%APPDATA%\ThatGameCompany\com.netease.sky`
-- macOS: `~/Library/Containers/com.tgc.sky.macos/Data/Documents`
+```bash
+python sky_folder_selector.py
+```
 
-## 作者
+## 构建可执行文件
 
-- 编写脚本：星川尘心
-- 转换程序：小丞
+使用 PyInstaller 构建可执行文件：
+
+```bash
+# Windows
+pyinstaller --name "Sky Folder Selector" --windowed --onefile --icon "assets/icons/icon.ico" sky_folder_selector.py
+
+# macOS
+pyinstaller --name "Sky Folder Selector" --windowed --onefile --icon "assets/icons/icon.icns" sky_folder_selector.py
+```
+
+## 使用说明
+
+1. 下载对应平台的安装包
+2. 运行程序
+3. 选择需要处理的文件夹
+
+## 更新日志
+
+### v1.0.0
+- 初始版本发布
+- 支持 Windows 和 macOS 平台
+- 优化了构建配置，确保所有依赖正确打包
+- 添加了必要的系统权限配置
+- 添加了应用程序图标
