@@ -39,7 +39,6 @@ jobs:
       run: dir dist
         
     - name: Create Release
-      id: create_release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,14 +47,10 @@ jobs:
         name: Release v${{ github.run_number }} (Windows)
         draft: false
         prerelease: false
-        
-    - name: Upload Windows Release Asset
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        files: dist/Sky Folder Selector Setup.exe
-        tag_name: v${{ github.run_number }}-windows
+        files: |
+          dist/Sky Folder Selector Setup.exe
+          dist/Sky Folder Selector Setup.exe.blockmap
+          dist/latest.yml
 
   build-macos:
     runs-on: macos-latest
@@ -85,7 +80,6 @@ jobs:
       run: ls -la dist/
         
     - name: Create Release
-      id: create_release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -94,11 +88,7 @@ jobs:
         name: Release v${{ github.run_number }} (macOS)
         draft: false
         prerelease: false
-        
-    - name: Upload macOS Release Asset
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        files: dist/Sky Folder Selector.dmg
-        tag_name: v${{ github.run_number }}-macos 
+        files: |
+          dist/Sky Folder Selector.dmg
+          dist/Sky Folder Selector.app
+          dist/latest-mac.yml 

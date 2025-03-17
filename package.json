@@ -20,13 +20,13 @@
     "productName": "Sky Folder Selector",
     "asar": true,
     "mac": {
-      "target": ["dmg"],
+      "target": ["dmg", "zip"],
       "category": "public.app-category.utilities",
-      "artifactName": "Sky Folder Selector.dmg"
+      "artifactName": "Sky Folder Selector.${ext}"
     },
     "win": {
-      "target": ["nsis"],
-      "artifactName": "Sky Folder Selector Setup.exe"
+      "target": ["nsis", "portable"],
+      "artifactName": "Sky Folder Selector Setup.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -49,6 +49,11 @@
     ],
     "directories": {
       "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "A-Kevin1217",
+      "repo": "sky-folder-selector"
     }
   }
 } 
