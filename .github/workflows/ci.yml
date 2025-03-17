@@ -30,11 +30,23 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller==6.3.0
         pip install pywin32-ctypes==0.2.2
+        if: matrix.os == 'windows-latest'
+        pip install pywin32==306
     
     - name: Build Windows executable
       if: matrix.os == 'windows-latest'
       shell: cmd
       run: |
+        echo "Python version:"
+        python --version
+        echo "Current directory:"
+        cd
+        echo "Directory contents:"
+        dir
+        
+        REM 显示 PyInstaller 版本
+        pyinstaller --version
+        
         REM 构建可执行文件
         pyinstaller --name "Sky Folder Selector" ^
                    --windowed ^
@@ -42,15 +54,26 @@ jobs:
                    --clean ^
                    --noconfirm ^
                    --icon "assets/icons/icon.ico" ^
+                   --log-level DEBUG ^
                    sky_folder_selector.py
         
-        REM 检查构建输出
+        echo "Build complete, checking dist directory:"
         dir dist
         
-        REM 压缩 Windows 可执行文件
-        cd dist
-        powershell -Command "Compress-Archive -Path 'Sky Folder Selector.exe' -DestinationPath 'Sky Folder Selector Windows.zip' -Force"
-        cd ..
+        REM 如果文件存在则压缩
+        if exist "dist\Sky Folder Selector.exe" (
+            echo "Executable found, creating zip file..."
+            cd dist
+            powershell -Command "Compress-Archive -Path 'Sky Folder Selector.exe' -DestinationPath 'Sky Folder Selector Windows.zip' -Force"
+            cd ..
+        ) else (
+            echo "ERROR: Executable not found in dist directory"
+            echo "Contents of current directory:"
+            dir
+            echo "Contents of dist directory:"
+            dir dist
+            exit 1
+        )
     
     - name: Build macOS app
       if: matrix.os == 'macos-latest'
